@@ -1,0 +1,25 @@
+Installation.ps1
+
+$mypwd = ConvertTo-SecureString "YOURPASSWORD"-AsPlainText -Force
+Import-PfxCertificate -FilePath YOURCERTNAME.p12 -CertStoreLocation Cert:\CurrentUser\My -Password $mypwd
+
+Uninstallation.ps1
+
+Get-ChildItem Cert:\CurrentUser\My\YOURCERTIFICATETHUMBPRINT | Remove-Item
+
+DetectionMethods.ps1
+
+$Check = Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Thumbprint -eq "YOURCERTIFACTETHUMBPRINT"}
+if ($check){
+Write-Output "0"
+}
+
+.P12 Cert(file) along with install.ps1, uninstall.ps1 and detectionMethods.ps1 should be packed to intunewinfile extension via IntuneWinAppUtil(wrapper)
+Once wrapped, should be uploaded to MS Intune as app. with following properties
+
+Installaton cmd: powershell.exe -ExecutionPolicy Bypass -File InstallCert.ps1
+Uninstallation cmd: powershell.exe -ExecutionPolicy Bypass -File UninstallCert.ps1
+Detection Methods: Choose Custom detection methods and upload DetectionMethods.ps1 to app deployment
+Last step is to associate app deployment with Azure Active Directory Groups
+
+REMEBER ALWAYS TEST BEFORE BIG BANG PUSH to PRODUCTION
